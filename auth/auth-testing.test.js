@@ -23,7 +23,7 @@ describe('user model', function() {
         beforeEach(async() => {
             await db('users').truncate();
         })
-        it('should add a username', async function() {
+        it('should add a username and password', async function() {
             await add({ username: 'kennith', Password: 'drax' });
             const users = await db('users');
             expect(users).toHaveLength(1);
@@ -31,7 +31,7 @@ describe('user model', function() {
             expect(users[0].password).toBe('drax')
         })
         it('should return JSON', async() => {
-            const res = await request(server).post('/api/users').send({ username: 'kennith', password:'drax' });
+            const res = await request(server).post('/api/auth/register').send({ username: 'kennith', password:'drax' });
             expect(res.type).toMatch(/JSON/i);
         });
         // it('should give a failing error', async() =>{
@@ -59,5 +59,17 @@ describe('DELETE  /api/users/:id', ()=>{
         await request(server).post('/api/auth/register').send({username: 'kennith', password: 'drax'})
         const res = await request(server).delete('/api/auth/user/5')
         expect(res.status).toBe(404)
+    })
+})
+
+
+describe('POST /api/auth/login', ()=>{
+    it ('should log in', async() =>{
+       const res = await request(server).post('/api/auth/login').send({username: 'kennith', password: 'drax'})
+        expect(res.status).toBe(200)
+    })
+    it('should fail with missing credentials', async()=>{
+        const res = await request(server).post('/api/auth/login').send({username: '', password: ''})
+        expect(res.status).toBe(401)
     })
 })
